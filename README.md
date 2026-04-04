@@ -10,6 +10,16 @@ It is the inverse visualization of a normal 2D classification workflow:
 
 This repository is designed to run locally on any machine with Python and filesystem access to the CryoSPARC project directory. It does not require Slurm and it does not call the CryoSPARC API.
 
+## Example Output
+
+Real blink GIF generated from:
+
+- primary `select_2D` job `J46`
+- secondary `select_2D` job `J98`
+- denoise job `J10`
+
+![Example blink overlay](docs/media/j46_j98_j10_denoised_overlay_example.blink.gif)
+
 ## Acknowledgements and Prior Work
 
 This repository is a new, independent implementation of the ReconSil concept for CryoSPARC `select_2D` jobs.
