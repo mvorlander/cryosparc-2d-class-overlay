@@ -32,6 +32,10 @@ It is conceptually inspired by the ReconSil method described by Thomas C. R. Mil
   https://www.sciencedirect.com/science/chapter/bookseries/pii/S0076687922000830
   PubMed: https://pubmed.ncbi.nlm.nih.gov/35026552/
 
+The particle re-projection step in this repository was also informed by the general approach used in RELION's `particle_reposition.cpp`:
+
+- RELION source: https://github.com/3dem/relion/blob/master/src/apps/particle_reposition.cpp
+
 This repository does not contain the original ReconSil source code. It should be understood as a fresh implementation of the same general idea, adapted for CryoSPARC `.cs` datasets, local Python environments, and direct command-line use.
 
 ## Features
