@@ -1,0 +1,50 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cryosparc-2d-class-overlay"
+version = "0.1.0"
+description = "Overlay CryoSPARC Select 2D class averages back onto micrographs."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [
+  { name = "Matthias Vorlaender" }
+]
+keywords = ["cryo-em", "cryosparc", "electron-microscopy", "image-processing"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Image Processing",
+]
+dependencies = [
+  "numpy>=1.26",
+  "scipy>=1.12",
+  "Pillow>=10.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+]
+
+[project.scripts]
+cryosparc-2d-class-overlay = "cryosparc_2d_class_overlay.cli:main"
+cryosparc-overlay-2d-classes-on-micrographs = "cryosparc_2d_class_overlay.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/mvorlander/cryosparc-2d-class-overlay"
+Repository = "https://github.com/mvorlander/cryosparc-2d-class-overlay"
+Issues = "https://github.com/mvorlander/cryosparc-2d-class-overlay/issues"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
