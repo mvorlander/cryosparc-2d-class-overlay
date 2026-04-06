@@ -49,6 +49,7 @@ This repository does not contain the original ReconSil source code. It should be
 - Supports rendering onto denoised micrographs from a CryoSPARC denoise job
 - Supports per-particle 3D refinement-map backprojections
 - Supports cached 3D backprojections by quantized angular bins for speed
+- Uses `alignments3D/object_pose` and `alignments3D/object_shift` automatically for CryoSPARC `new_local_refine` jobs
 - Writes:
   - `.overlay.png`
   - `.synthetic.png`
@@ -193,8 +194,12 @@ The output folder also contains `overlay_summary.tsv` with total and per-job par
 - For the tested CryoSPARC outputs, the best-matching transform convention is:
   - rotate by `+alignments2D/pose`
   - shift by `-alignments2D/shift`
-- For tested CryoSPARC refinement outputs, the current 3D implementation uses `alignments3D/pose` as a rotation vector, projects the refined map after rotation, then applies `-alignments3D/shift`.
+- For tested CryoSPARC refinement outputs, the best-matching 3D convention is:
+  - rotate by `-alignments3D/pose`
+  - shift by `-alignments3D/shift`
+- For tested CryoSPARC `new_local_refine` outputs, the reprojection should use `alignments3D/object_pose` and `alignments3D/object_shift` rather than the generic `alignments3D/pose` and `alignments3D/shift`.
 - For 3D refinement sources, `--projection-angle-step-deg` controls an on-demand projection cache. The default `5` degree binning is much faster than exact per-particle projection; set it to `0` to disable quantization.
+- PNG and GIF outputs are full resolution by default. Use `--png-downsample` or `--gif-downsample` only when you explicitly want smaller review files.
 - CryoSPARC motion-corrected micrographs may use MRC mode `12` half-floats; this is supported.
 
 ## Development

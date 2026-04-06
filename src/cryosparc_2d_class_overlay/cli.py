@@ -30,14 +30,18 @@ DEFAULT_SYNTHETIC_BACKGROUND_COLOR = "auto"
 DEFAULT_MICROGRAPH_OPACITY = 1.0
 DEFAULT_CLASS_OPACITY = 0.70
 DEFAULT_MASK_RADIUS_FRACTION = 0.48
-DEFAULT_POSE_SIGN = 1
+DEFAULT_POSE_SIGN = -1
 DEFAULT_SHIFT_SIGN = -1
 DEFAULT_IMBALANCE_WARNING_RATIO = 3.0
 DEFAULT_TOP_MICROGRAPHS_MODE_SINGLE = "sum"
 DEFAULT_TOP_MICROGRAPHS_MODE_MULTI = "balanced"
 DEFAULT_TOP_MICROGRAPHS_MODES = ("sum", "min", "balanced")
 DEFAULT_PROJECTION_ANGLE_STEP_DEG = 5.0
+DEFAULT_PNG_DOWNSAMPLE = 1
+DEFAULT_GIF_DOWNSAMPLE = 1
+DEFAULT_GIF_FRAME_MS = 500
 SELECT2D_JOB_TYPE = "select_2D"
+LOCAL_REFINE_JOB_TYPE = "new_local_refine"
 REFINE3D_JOB_TYPES = ("homo_refine_new", "nonuniform_refine_new", "new_local_refine")
 SOURCE_KIND_SELECT2D = "select2d"
 SOURCE_KIND_REFINE3D = "refine3d"
@@ -129,6 +133,12 @@ def detect_source_kind(job_dir: Path) -> str:
         f"{job_dir} has unsupported CryoSPARC job type {job_type!r}. "
         f"Supported types are {SELECT2D_JOB_TYPE!r} and {', '.join(REFINE3D_JOB_TYPES)}."
     )
+
+
+def refinement_alignment_fields(job_type: str) -> tuple[str, str]:
+    if job_type == LOCAL_REFINE_JOB_TYPE:
+        return ("alignments3D/object_pose", "alignments3D/object_shift")
+    return ("alignments3D/pose", "alignments3D/shift")
 
 
 def source_kind_label(source_kind: str) -> str:
@@ -521,6 +531,8 @@ def load_refinement_particles(
     project_dir: Path,
     particles_path: Path,
     passthrough_path: Path,
+    pose_field: str,
+    shift_field: str,
 ) -> dict[Path, list[ParticleRecord]]:
     Dataset = load_dataset_class()
     particles = Dataset.load(str(particles_path))
@@ -532,8 +544,8 @@ def load_refinement_particles(
         fail("Main and passthrough particle datasets are not aligned by UID.")
 
     required_main = {
-        "alignments3D/pose",
-        "alignments3D/shift",
+        pose_field,
+        shift_field,
         "alignments3D/psize_A",
     }
     required_pass = {
@@ -554,8 +566,8 @@ def load_refinement_particles(
         )
 
     particle_groups: dict[Path, list[ParticleRecord]] = defaultdict(list)
-    poses = np.asarray(particles["alignments3D/pose"], dtype=np.float32)
-    shifts = np.asarray(particles["alignments3D/shift"], dtype=np.float32)
+    poses = np.asarray(particles[pose_field], dtype=np.float32)
+    shifts = np.asarray(particles[shift_field], dtype=np.float32)
     align_psizes = np.asarray(particles["alignments3D/psize_A"], dtype=np.float32)
     micro_uids = np.asarray(passthrough["location/micrograph_uid"], dtype=np.uint64)
     micro_paths = np.asarray(passthrough["location/micrograph_path"])
@@ -596,6 +608,8 @@ def load_refinement_particles(
 
 
 def load_overlay_source(job_dir: Path, subset: str, overlay_color_name: str) -> OverlaySource:
+    job_metadata = load_job_metadata(job_dir)
+    job_type = str(job_metadata.get("type", ""))
     source_kind = detect_source_kind(job_dir)
     project_dir = job_dir.parent
     templates = None
@@ -612,12 +626,24 @@ def load_overlay_source(job_dir: Path, subset: str, overlay_color_name: str) -> 
         source_subset: str | None = subset
     else:
         particles_path, passthrough_path, volume_cs_path = load_refine_files(job_dir)
+        pose_field, shift_field = refinement_alignment_fields(job_type)
         log(
             f"Loading 3D refinement particle data for {job_dir.name} from "
             f"{particles_path.name}, {passthrough_path.name}, and {volume_cs_path.name}"
         )
+        if job_type == LOCAL_REFINE_JOB_TYPE:
+            log(
+                "Using local-refine object alignment fields for reprojection: "
+                f"{pose_field} and {shift_field}"
+            )
         volume = load_refinement_volume(project_dir, volume_cs_path)
-        particle_groups = load_refinement_particles(project_dir, particles_path, passthrough_path)
+        particle_groups = load_refinement_particles(
+            project_dir,
+            particles_path,
+            passthrough_path,
+            pose_field=pose_field,
+            shift_field=shift_field,
+        )
         source_subset = None
 
     return OverlaySource(
@@ -1293,14 +1319,20 @@ def build_argument_parser() -> argparse.ArgumentParser:
     main.add_argument(
         "--png-downsample",
         type=int,
-        default=1,
-        help="Downsample PNG outputs by this integer factor (default: 1)",
+        default=DEFAULT_PNG_DOWNSAMPLE,
+        help=(
+            "Downsample PNG outputs by this integer factor. "
+            f"1 keeps full resolution (default: {DEFAULT_PNG_DOWNSAMPLE})"
+        ),
     )
     main.add_argument(
         "--gif-downsample",
         type=int,
-        default=1,
-        help="Downsample GIF outputs by this integer factor (default: 1)",
+        default=DEFAULT_GIF_DOWNSAMPLE,
+        help=(
+            "Downsample GIF outputs by this integer factor. "
+            f"1 keeps full resolution (default: {DEFAULT_GIF_DOWNSAMPLE})"
+        ),
     )
     main.add_argument(
         "--downsample",
@@ -1330,8 +1362,11 @@ def build_argument_parser() -> argparse.ArgumentParser:
     main.add_argument(
         "--gif-frame-ms",
         type=int,
-        default=500,
-        help="Frame duration for blink GIFs in milliseconds (default: 500)",
+        default=DEFAULT_GIF_FRAME_MS,
+        help=(
+            "Frame duration for blink GIFs in milliseconds "
+            f"(default: {DEFAULT_GIF_FRAME_MS})"
+        ),
     )
     parser.set_defaults(write_gifs=True)
 
