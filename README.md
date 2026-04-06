@@ -18,15 +18,13 @@ This repository is designed to run locally on any machine with Python and filesy
 
 ## Example Output
 
-GIF generated from two `select_2D` jobs overlaid onto a denoised micrograph, one in black and one in white.
-
-
-
-![Example blink overlay](docs/media/j46_j98_j10_denoised_overlay_example.blink.gif)
-
 GIF generated from two particle-subset-derived reconstruct-only jobs overlaid onto a denoised micrograph. Black and red correspond to different particle scale-factor subsets.
 
 ![Particle subset scale-factor example](docs/media/j100_j101_particle_subset_scale_factor_example.blink.gif)
+
+GIF generated from two `select_2D` jobs overlaid onto a denoised micrograph, one in black and one in white.
+
+![Example blink overlay](docs/media/j46_j98_j10_denoised_overlay_example.blink.gif)
 
 ## Acknowledgements and Prior Work
 
@@ -87,8 +85,8 @@ This follows the official CryoSPARC Tools guidance.
 Create a virtual environment, install the matching `cryosparc-tools`, and install this package:
 
 ```bash
-git clone https://github.com/mvorlander/cryosparc-2d-class-overlay.git
-cd cryosparc-2d-class-overlay
+git clone https://github.com/mvorlander/cryosparc-particle-reposition.git
+cd cryosparc-particle-reposition
 ./scripts/bootstrap.sh --cryosparc-version 5.0
 source .venv/bin/activate
 cryosparc-particle-reposition --help

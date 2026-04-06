@@ -43,9 +43,9 @@ cryosparc-2d-class-overlay = "cryosparc_2d_class_overlay.cli:main"
 cryosparc-overlay-2d-classes-on-micrographs = "cryosparc_2d_class_overlay.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/mvorlander/cryosparc-2d-class-overlay"
-Repository = "https://github.com/mvorlander/cryosparc-2d-class-overlay"
-Issues = "https://github.com/mvorlander/cryosparc-2d-class-overlay/issues"
+Homepage = "https://github.com/mvorlander/cryosparc-particle-reposition"
+Repository = "https://github.com/mvorlander/cryosparc-particle-reposition"
+Issues = "https://github.com/mvorlander/cryosparc-particle-reposition/issues"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
